@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Download, Printer, Check } from "lucide-react";
+import { Printer, Check, Leaf } from "lucide-react";
 
 interface OrderItem {
   id: number;
@@ -43,17 +43,14 @@ const Invoice = () => {
     window.print();
   };
   
-  const handleDownload = () => {
-    // This would be implemented with a proper PDF generation library in a real app
-    alert("Download functionality would be connected to backend PDF generation");
-  };
-  
   return (
-    <div className="min-h-screen bg-[#F9F9F7]">
+    <div className="min-h-screen bg-[#F2FCE2]">
       {/* Header - hidden when printing */}
       <header className="bg-[#2A5D42] text-white p-4 shadow-md print:hidden">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl md:text-3xl font-bold">GreenLife Garden</h1>
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center">
+            <Leaf className="mr-2" /> GreenLife Garden
+          </h1>
           <Button 
             onClick={() => navigate("/")}
             className="bg-[#4A7C61] hover:bg-[#3A6D52] text-white"
@@ -82,29 +79,32 @@ const Invoice = () => {
             <Printer size={16} />
             Print Invoice
           </Button>
-          <Button 
-            onClick={handleDownload}
-            className="flex items-center gap-2 bg-[#2A5D42] hover:bg-[#1A4D32]"
-          >
-            <Download size={16} />
-            Download PDF
-          </Button>
         </div>
         
         {/* Invoice */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-8 max-w-4xl mx-auto">
-          {/* Invoice Header */}
-          <div className="flex justify-between items-start border-b border-gray-200 pb-6 mb-6">
-            <div>
-              <h2 className="text-3xl font-bold text-[#2A5D42]">INVOICE</h2>
-              <p className="text-gray-500">{invoiceId}</p>
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-8 max-w-4xl mx-auto border-2 border-[#8E9196]">
+          {/* Invoice Header with Indian-inspired decorative pattern */}
+          <div className="relative border-b-2 border-[#FDE1D3] pb-6 mb-6">
+            <div className="absolute top-0 left-0 w-20 h-20 opacity-10" style={{
+              backgroundImage: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\"><path d=\"M0,0 L40,40 M40,0 L0,40\" stroke=\"%236E59A5\" stroke-width=\"1\"/></svg>')"
+            }}></div>
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-3xl font-bold text-[#6E59A5]">INVOICE</h2>
+                <p className="text-gray-500">{invoiceId}</p>
+              </div>
+              <div className="text-right">
+                <h3 className="text-xl font-semibold flex items-center justify-end">
+                  <Leaf className="mr-2 text-[#2A5D42]" /> GreenLife Garden
+                </h3>
+                <p className="text-sm text-gray-500">123 Botanical Street</p>
+                <p className="text-sm text-gray-500">Garden City, 560001</p>
+                <p className="text-sm text-gray-500">contact@greenlife.com</p>
+              </div>
             </div>
-            <div className="text-right">
-              <h3 className="text-xl font-semibold">GreenLife Garden</h3>
-              <p className="text-sm text-gray-500">123 Botanical Street</p>
-              <p className="text-sm text-gray-500">Garden City, 560001</p>
-              <p className="text-sm text-gray-500">contact@greenlife.com</p>
-            </div>
+            <div className="absolute bottom-0 right-0 w-20 h-20 opacity-10" style={{
+              backgroundImage: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\"><path d=\"M0,0 L40,40 M40,0 L0,40\" stroke=\"%236E59A5\" stroke-width=\"1\"/></svg>')"
+            }}></div>
           </div>
           
           {/* Customer & Order Info */}
@@ -129,7 +129,7 @@ const Invoice = () => {
           {/* Order Items */}
           <table className="w-full mb-8">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b-2 border-[#FEC6A1]">
                 <th className="px-2 py-3 text-left">Item</th>
                 <th className="px-2 py-3 text-right">Quantity</th>
                 <th className="px-2 py-3 text-right">Unit Price</th>
@@ -149,7 +149,7 @@ const Invoice = () => {
           </table>
           
           {/* Totals */}
-          <div className="border-t border-gray-200 pt-4">
+          <div className="border-t-2 border-[#FEC6A1] pt-4">
             <div className="flex justify-between mb-2">
               <span className="font-medium">Subtotal</span>
               <span>₹{calculateSubtotal().toFixed(2)}</span>
@@ -158,15 +158,21 @@ const Invoice = () => {
               <span className="font-medium">Shipping</span>
               <span>₹100.00</span>
             </div>
-            <div className="flex justify-between text-lg font-bold mt-4 pt-4 border-t border-gray-200">
+            <div className="flex justify-between text-lg font-bold mt-4 pt-4 border-t-2 border-[#FEC6A1]">
               <span>Total</span>
               <span>₹{(calculateSubtotal() + 100).toFixed(2)}</span>
             </div>
           </div>
           
-          {/* Thank You Note */}
-          <div className="mt-8 text-center text-gray-600">
-            <p>Thank you for shopping with GreenLife Garden!</p>
+          {/* Thank You Note with Indian-inspired decorative elements */}
+          <div className="mt-8 text-center text-gray-600 relative">
+            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center opacity-5">
+              <svg viewBox="0 0 100 100" className="w-20 h-20">
+                <path d="M50,0 L60,40 L100,50 L60,60 L50,100 L40,60 L0,50 L40,40 z" fill="#6E59A5" />
+              </svg>
+            </div>
+            <p className="relative z-10">Thank you for shopping with GreenLife Garden!</p>
+            <p className="relative z-10 text-sm mt-2">🌱 Grow with nature, flourish with us 🌱</p>
           </div>
         </div>
       </div>
@@ -182,3 +188,4 @@ const Invoice = () => {
 };
 
 export default Invoice;
+
