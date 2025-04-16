@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PlantList from "../components/PlantList";
 import PlantDetails from "../components/PlantDetails";
 import AddPlantForm from "../components/AddPlantForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart, LogOut, UserPlus, LogIn } from "lucide-react";
+import { toast } from "sonner";
 
 // This would later be fetched from your PHP backend
 const initialPlants = [
@@ -15,7 +17,7 @@ const initialPlants = [
     type: "Indoor",
     image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800",
     quantity: 15,
-    price: 35.99,
+    price: 1299.99,
     wateringFrequency: "Weekly",
     lightRequirements: "Indirect bright light",
     description: "The Swiss Cheese Plant, known for its iconic split leaves."
@@ -26,7 +28,7 @@ const initialPlants = [
     type: "Indoor",
     image: "https://images.unsplash.com/photo-1593482892420-9c85c09c83f4?auto=format&fit=crop&w=800",
     quantity: 28,
-    price: 22.50,
+    price: 899.50,
     wateringFrequency: "Bi-weekly",
     lightRequirements: "Low to bright indirect",
     description: "Very low maintenance plant, perfect for beginners."
@@ -37,7 +39,7 @@ const initialPlants = [
     type: "Outdoor",
     image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=800",
     quantity: 42,
-    price: 12.99,
+    price: 499.99,
     wateringFrequency: "When soil is dry",
     lightRequirements: "Full sun",
     description: "Aromatic herb with purple flowers, attracts butterflies."
@@ -48,7 +50,7 @@ const initialPlants = [
     type: "Indoor",
     image: "https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?auto=format&fit=crop&w=800",
     quantity: 10,
-    price: 28.50,
+    price: 799.50,
     wateringFrequency: "Weekly",
     lightRequirements: "Low to medium indirect",
     description: "Beautiful white flowers and air-purifying qualities."
@@ -59,7 +61,7 @@ const initialPlants = [
     type: "Edible",
     image: "https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=800",
     quantity: 35,
-    price: 8.99,
+    price: 349.99,
     wateringFrequency: "Daily",
     lightRequirements: "Full sun",
     description: "Produces red fruits perfect for cooking."
@@ -70,7 +72,7 @@ const initialPlants = [
     type: "Indoor",
     image: "https://images.unsplash.com/photo-1600411833196-7c1f6b1a8b90?auto=format&fit=crop&w=800",
     quantity: 8,
-    price: 65.00,
+    price: 2499.00,
     wateringFrequency: "Weekly",
     lightRequirements: "Bright indirect light",
     description: "Popular houseplant with large, violin-shaped leaves."
@@ -83,6 +85,21 @@ const Index = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("All");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("isLoggedIn") === "true";
+    setIsLoggedIn(loginStatus);
+    
+    // Load cart count
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+      const cartItems = JSON.parse(savedCart);
+      setCartCount(cartItems.length);
+    }
+  }, []);
   
   const handleSelectPlant = (plant: any) => {
     setSelectedPlant(plant);
@@ -116,6 +133,50 @@ const Index = () => {
     }
   };
   
+  const handleAddToCart = (plant: any) => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    
+    const cartItem = {
+      id: plant.id,
+      name: plant.name,
+      price: plant.price,
+      image: plant.image,
+      quantity: 1
+    };
+    
+    // Get current cart from localStorage
+    const savedCart = localStorage.getItem("cart");
+    let cart = savedCart ? JSON.parse(savedCart) : [];
+    
+    // Check if item is already in cart
+    const itemIndex = cart.findIndex((item: any) => item.id === plant.id);
+    
+    if (itemIndex >= 0) {
+      // Update quantity if item exists
+      cart[itemIndex].quantity += 1;
+    } else {
+      // Add new item if it doesn't exist
+      cart.push(cartItem);
+    }
+    
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setCartCount(cart.length);
+    
+    toast.success("Added to cart!", {
+      description: `${plant.name} has been added to your cart.`
+    });
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    toast.success("Logged out successfully");
+  };
+  
   const filteredPlants = plants.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterType === "All" || plant.type === filterType;
@@ -129,16 +190,61 @@ const Index = () => {
       {/* Header */}
       <header className="bg-[#2A5D42] text-white p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl md:text-3xl font-bold">Green Thumb Nursery</h1>
-          <Button 
-            onClick={() => {
-              setShowAddForm(true);
-              setSelectedPlant(null);
-            }}
-            className="bg-[#4A7C61] hover:bg-[#3A6D52] text-white"
-          >
-            Add New Plant
-          </Button>
+          <h1 className="text-2xl md:text-3xl font-bold">GreenLife Garden</h1>
+          <div className="flex items-center gap-3">
+            {isLoggedIn ? (
+              <>
+                <Button 
+                  onClick={() => navigate("/cart")}
+                  variant="ghost"
+                  className="text-white hover:bg-[#3A6D52] relative"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  onClick={handleLogout}
+                  variant="ghost"
+                  className="text-white hover:bg-[#3A6D52]"
+                >
+                  <LogOut className="h-5 w-5 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  onClick={() => navigate("/signup")}
+                  variant="ghost"
+                  className="text-white hover:bg-[#3A6D52]"
+                >
+                  <UserPlus className="h-5 w-5 mr-2" />
+                  Sign Up
+                </Button>
+                <Button 
+                  onClick={() => navigate("/login")}
+                  variant="ghost"
+                  className="text-white hover:bg-[#3A6D52]"
+                >
+                  <LogIn className="h-5 w-5 mr-2" />
+                  Login
+                </Button>
+              </>
+            )}
+            <Button 
+              onClick={() => {
+                setShowAddForm(true);
+                setSelectedPlant(null);
+              }}
+              className="bg-[#4A7C61] hover:bg-[#3A6D52] text-white"
+            >
+              Add New Plant
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -186,11 +292,20 @@ const Index = () => {
             {showAddForm ? (
               <AddPlantForm onAddPlant={handleAddPlant} onCancel={() => setShowAddForm(false)} />
             ) : selectedPlant ? (
-              <PlantDetails 
-                plant={selectedPlant} 
-                onDelete={handleDeletePlant} 
-                onUpdateInventory={handleUpdateInventory} 
-              />
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <PlantDetails 
+                  plant={selectedPlant} 
+                  onDelete={handleDeletePlant} 
+                  onUpdateInventory={handleUpdateInventory} 
+                />
+                <Button 
+                  onClick={() => handleAddToCart(selectedPlant)}
+                  className="w-full mt-4 bg-[#2A5D42] hover:bg-[#1A4D32] text-white flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Add to Cart
+                </Button>
+              </div>
             ) : (
               <div className="bg-white p-6 rounded-lg shadow-sm text-center h-64 flex items-center justify-center">
                 <div className="text-gray-500">
@@ -205,7 +320,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-[#2A5D42] text-white p-4 mt-8">
         <div className="container mx-auto text-center">
-          <p>&copy; 2025 Green Thumb Nursery</p>
+          <p>&copy; 2025 GreenLife Garden</p>
         </div>
       </footer>
     </div>

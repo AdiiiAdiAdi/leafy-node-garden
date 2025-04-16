@@ -52,7 +52,7 @@ const PlantList = ({ plants, onSelectPlant, selectedPlantId }: PlantListProps) =
                   <p className="text-sm text-gray-500">{plant.type}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-[#2A5D42]">${plant.price.toFixed(2)}</p>
+                  <p className="font-semibold text-[#2A5D42]">₹{plant.price.toFixed(2)}</p>
                   <p className={cn(
                     "text-sm",
                     plant.quantity < 10 ? "text-red-500" : "text-gray-500"
